@@ -1,7 +1,6 @@
-# # Ignore virtual environment folders
-# venv/
+# Ignore virtual environment folders
+venv/
 
-# # Ignore Python bytecode files
-# _pycache__/
+# Ignore Python bytecode files
+_pycache__/
 
-ignore/
