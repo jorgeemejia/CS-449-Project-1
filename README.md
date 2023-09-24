@@ -6,6 +6,7 @@
 Complete the setup steps given by Prof Avery: https://sites.google.com/view/cpsc-449
 You can stop following his setup after the FastAPI installion step.
 
+#### Steps
 (1) Git clone this repository
 git clone 
 (2) Populate the Database
