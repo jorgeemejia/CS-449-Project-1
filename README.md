@@ -59,4 +59,5 @@ Also, make sure you have completed the additional setup steps provided by Prof. 
 - **Merging Pull Requests:** After addressing review comments, and with the approval of at least one team member (unless you merged it yourself), you can merge your own pull request. Ensure that any conflicts are resolved before merging.
 
 ## Getting Lost
-"tf is a ___?" "How do you__?" Some of this stuff (branches, pull requests, merging, issues, etc.) might be new to you and if it is, that's okay. Just ask someone in the discord for help/clarification. 
+
+"Wait, what's a ___?" "How the fuck do you ____?" Some of these things like branches, pull requests, merging, issues, and so on might be new and confusing, and that's perfectly fine! Don't hesitate to hop into our Discord and ask for help or clarification.
