@@ -46,9 +46,9 @@ Also, make sure you have completed the additional setup steps provided by Prof. 
 
 ### Tackling Issues
 
-- **Issue Selection:** Team members are encouraged to choose issues that align with their skills and interests. That being said, prioritize issues based on importance and dependencies.
+- **Issue Selection:**  Team members are encouraged to choose issues that align with their skills and interests. That being said, prioritize issues based on importance and dependencies.
 
-- **Starting Work:** When you're ready to work on an issue, create a branch that clearly indicates the issue it aims to resolve. For example, if the issue title is "Add SQL script for foods table," your branch should be named something like "add/sql-script-for-foods."
+- **Starting Work:** Before you begin working on an issue, please inform the team to prevent duplication of effort and ensure efficient collaboration. Then, create a branch that clearly indicates the issue it aims to resolve. For example, if the issue title is "Add SQL script for foods table," your branch should be named something like "add/sql-script-for-foods."
 
 ### Pull Request Process
 
