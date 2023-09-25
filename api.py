@@ -50,6 +50,11 @@ def list_instructors(db: sqlite3.Connection = Depends(get_db)):
     instructors = db.execute("SELECT * FROM instructors")
     return {"instructors": instructors.fetchall()}
 
+@app.get("/courses")
+def list_courses(db: sqlite3.Connection = Depends(get_db)):
+    courses = db.execute("SELECT * FROM courses")
+    return {"courses": courses.fetchall()}
+
 # @app.get("/books/")
 # def list_books(db: sqlite3.Connection = Depends(get_db)):
 #     books = db.execute("SELECT * FROM books")
