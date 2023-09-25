@@ -57,3 +57,6 @@ Also, make sure you have completed the additional setup steps provided by Prof. 
 - **Code Review:** Reviewers are expected to provide constructive feedback to improve code quality.
 
 - **Merging Pull Requests:** After addressing review comments, and with the approval of at least one team member (unless you merged it yourself), you can merge your own pull request. Ensure that any conflicts are resolved before merging.
+
+## Getting Lost
+"tf is a ___?" "How do you__?" Some of this stuff (branches, pull requests, merging, issues, etc.) might be new to you and if it is, that's okay. Just ask someone in the discord for help/clarification. 
