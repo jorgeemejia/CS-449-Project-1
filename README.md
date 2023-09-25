@@ -40,14 +40,20 @@ Also, make sure you have completed the additional setup steps provided by Prof. 
 
 ## Workflow
 
-When you are ready to start working on the project, follow these steps:
+### Issue Management
 
-1. Create a new branch for your task:
+- **Creating Issues:** Issues can be created by anyone and will be assigned to everyone. Ensure that issues are well-structured with clear titles and descriptions (if neccessary).
 
-    ```
-    git branch task/fixing-something
-    ```
+### Tackling Issues
 
-2. Work on your changes on the branch.
+- **Issue Selection:** Team members are encouraged to choose issues that align with their skills and interests. That being said, prioritize issues based on importance and dependencies.
 
-3. Create a pull request and have another classmate approve it.
+- **Starting Work:** When you're ready to work on an issue, create a branch that clearly indicates the issue it aims to resolve. For example, if the issue title is "Add SQL script for foods table," your branch should be named something like "add/sql-script-for-foods."
+
+### Pull Request Process
+
+- **Pull Request Review:** If you're not fully confident in your code, seek a review from another project member (if you are, just merge it). Request reviews by mentioning team members in the PR comments or mentioning it in Discord.
+
+- **Code Review:** Reviewers are expected to provide constructive feedback to improve code quality.
+
+- **Merging Pull Requests:** After addressing review comments, and with the approval of at least one team member (unless you merged it yourself), you can merge your own pull request. Ensure that any conflicts are resolved before merging.
