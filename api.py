@@ -55,6 +55,16 @@ def list_courses(db: sqlite3.Connection = Depends(get_db)):
     courses = db.execute("SELECT * FROM courses")
     return {"courses": courses.fetchall()}
 
+@app.get("/enrollments")
+def list_enrollments(db: sqlite3.Connection = Depends(get_db)):
+    enrollments = db.execute("SELECT * FROM enrollments")
+    return {"enrollments": enrollments.fetchall()}
+
+@app.get("/droplists")
+def list_droplists(db: sqlite3.Connection = Depends(get_db)):
+    droplists = db.execute("SELECT * FROM droplists")
+    return {"droplists": droplists.fetchall()}
+
 # @app.get("/books/")
 # def list_books(db: sqlite3.Connection = Depends(get_db)):
 #     books = db.execute("SELECT * FROM books")
