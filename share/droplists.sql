@@ -1,21 +1,18 @@
-PRAGMA foreign_key = ON;
+PRAGMA foreign_keys = ON;
 BEGIN TRANSACTION;
 DROP TABLE IF EXISTS droplists;
 CREATE TABLE droplists (
-    DropListID PRIMARY KEY INTEGER,
-    StudentID FOREIGN KEY INTEGER,
-    ClassID FOREIGN KEY INTEGER,
-    InstructorID FOREIGN KEY INTEGER,
+    DropListID INTEGER PRIMARY KEY,
+    StudentID INTEGER,
+    ClassID INTEGER,
+    InstructorID INTEGER,
     AdminDrop BOOLEAN,
-    CONSTRAINT fk_students
-    CONSTRAINT fk_classes
-    CONSTRAINT fk_instructors
-
-    FOREIGN KEY (StudentID) REFERENCES students(StudentID)
-    FOREIGN KEY (ClassID) REFERENCES classes(ClassID)
-    FOREIGN KEY (InstructorID) REFERENCES instructors(InstructorID)
+    
+    CONSTRAINT fk_drop_students FOREIGN KEY (StudentID) REFERENCES students(StudentID),
+    CONSTRAINT fk_drop_classes FOREIGN KEY (ClassID) REFERENCES classes(ClassID),
+    CONSTRAINT fk_drop_instructors FOREIGN KEY (InstructorID) REFERENCES instructors(InstructorID)
 
 );
 --INSERT INTO droplists(StudentID, ClassID, InstructorID, AdminDrop)
---VALUES (01,01,01,01, FALSE);
+--VALUES (01,01,01,01, 0);
 COMMIT;
