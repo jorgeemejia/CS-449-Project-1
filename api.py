@@ -66,7 +66,7 @@ def list_droplists(db: sqlite3.Connection = Depends(get_db)):
     return {"droplists": droplists.fetchall()}
 
 @app.get("/students")
-def list_droplists(db: sqlite3.Connection = Depends(get_db)):
+def list_students(db: sqlite3.Connection = Depends(get_db)):
     students = db.execute("SELECT * FROM students")
     return {"students": students.fetchall()}
 
