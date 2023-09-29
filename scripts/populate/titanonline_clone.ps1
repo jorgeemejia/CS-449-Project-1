@@ -18,3 +18,6 @@ Get-Content .\share\waitlists.sql | sqlite3 .\var\titanonline_clone.db
 
 # Execute students.sql
 Get-Content .\share\students.sql | sqlite3 .\var\titanonline_clone.db
+
+# Execute classes.sql
+Get-Content .\share\classes.sql | sqlite3 .\var\titanonline_clone.db
