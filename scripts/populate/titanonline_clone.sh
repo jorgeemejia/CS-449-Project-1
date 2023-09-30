@@ -2,20 +2,31 @@
 
 #Linux commands to create a clone of the titanonline database
 
-#instructors.sql
-cat ./share/instructors.sql | sqlite3 ./var/titanonline_clone.db
+# Check if the 'var' folder exists, and create it if it doesn't as well as the nested 'log' folder
+if [ ! -d "./var" ]; then
+    mkdir -p "./var/log"
+fi
 
-#departments.sql
-cat ./share/departments.sql | sqlite3 ./var/titanonline_clone.db
+# Execute classes.sql
+cat ./share/classes.sql | sqlite3 ./var/titanonline_clone.db
 
-#courses.sql
+# Execute courses.sql
 cat ./share/courses.sql | sqlite3 ./var/titanonline_clone.db
 
-#droplists.sql
+# Execute departments.sql
+cat ./share/departments.sql | sqlite3 ./var/titanonline_clone.db
+
+# Execute droplists.sql
 cat ./share/droplists.sql | sqlite3 ./var/titanonline_clone.db
 
-#enrollments.sql
+# Execute enrollments.sql
 cat ./share/enrollments.sql | sqlite3 ./var/titanonline_clone.db
 
-#waitlists.sql
+# Execute instructors.sql
+cat ./share/instructors.sql | sqlite3 ./var/titanonline_clone.db
+
+# Execute students.sql
+cat ./share/students.sql | sqlite3 ./var/titanonline_clone.db
+
+# Execute waitlists.sql
 cat ./share/waitlists.sql | sqlite3 ./var/titanonline_clone.db
