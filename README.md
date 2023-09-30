@@ -19,16 +19,26 @@ Also, make sure you have completed the additional setup steps provided by Prof. 
     If you are using Windows, you can use PowerShell scripts located in the `scripts/populate` directory to populate the database. For example, to populate the entire database, run:
 
     ```
-    /scripts/populate/titanonline_clone.ps1
+    /scripts/populate/titanonline_clone.**ps1**
     ```
 
     To populate a specific table, run:
 
     ```
-    /scripts/populate/instructors.ps1
+    /scripts/populate/instructors**.ps1**
     ```
 
-    If you are using Linux/MacOS, please find and add the equivalent scripts to the `scripts` folder so that others can use them.
+    If you are using Linux/MacOS, you can use Bash scripts locaed in the `scripts/populate` directory. For example, to populate the entire database, run:
+
+    ```
+    /scripts/populate/titanonline_clone**.sh**
+    ```
+
+    To populate a specific table, run:
+
+    ```
+    /scripts/populate/instructors**.sh**
+    ```
 
 3. Start Foreman
 
