@@ -5,5 +5,5 @@ if [ ! -d "./var" ]; then
     mkdir -p "./var/log"
 fi
 
-# Execute droplists.sql
-cat ./share/droplists.sql | sqlite3 ./var/titanonline_clone.db
+# Execute classes.sql
+cat ./share/classes.sql | sqlite3 ./var/titanonline_clone.db
