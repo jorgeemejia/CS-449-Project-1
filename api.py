@@ -3,15 +3,11 @@ import contextlib
 import logging.config
 import sqlite3
 import typing
-import logging
 
 from fastapi import FastAPI, Depends, Response, HTTPException, status
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__) 
 
 class Settings(BaseSettings, env_file=".env", extra="ignore"):
     database: str
@@ -41,34 +37,19 @@ logging.config.fileConfig(settings.logging_config, disable_existing_loggers=Fals
 def hello_world():
     return {"Up and running"}
 
-@app.post("/enroll")
-def allow_students_to_attempt_to_enroll(enrollment: Enrollment,
-                                        db: sqlite3.Connection = Depends(get_db)):
+
+@app.delete("/waitlist/remove/{StudentID}/{ClassID}")
+def remove_from_waitlist(StudentID: int, ClassID: int, db: sqlite3.Connection = Depends(get_db)):
+    
     try:
         cursor = db.cursor()
 
-        cursor.execute('SELECT COUNT(*) FROM enrollments WHERE ClassID = (?)', (enrollment.ClassID,))
-        classCurrentEnrollment = cursor.fetchone()[0]
-        cursor.execute('SELECT ClassMaximumEnrollment FROM classes WHERE ClassID = (?)', (enrollment.ClassID,))
-        classMaximumEnrollment = cursor.fetchone()[0]
-
-        logger.info(f"Class Current Enrollment: {classCurrentEnrollment}")
-        logger.info(f"Class Maximum Enrollment: {classMaximumEnrollment}")
-
-        if classCurrentEnrollment >= classMaximumEnrollment:
-            logger.error("Class Maximum Enrollment Exceeded, Enrollment Unsuccessful")
-            raise HTTPException(status_code=400, detail="Class Maximum Enrollment Has Been Exceeded")
-        
-        cursor.execute("INSERT INTO enrollments (StudentID, ClassID) VALUES (?, ?)", (enrollment.StudentID, enrollment.ClassID))
+        cursor.execute('DELETE FROM waitlists WHERE StudentID = ? AND ClassID = ?', (StudentID, ClassID))
         db.commit()
-        return {"message": "Enrollment successful"}
-
-    except HTTPException as e:
-        logger.error(f"HTTPException: {e.status_code} - {e.detail}")
+        return {"message": "Waitlist removal successful"}
     except Exception as e:
-        logger.exception("An error occurred during enrollment")
         db.rollback()
-        raise HTTPException(status_code=500, detail="Enrollment failed")
+        raise HTTPException(status_code=500, detail="Waitlist removal failed")
 
 
 @app.get("/departments")
