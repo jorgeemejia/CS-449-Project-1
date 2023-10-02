@@ -9,5 +9,6 @@ CREATE TABLE students (
 INSERT INTO students(StudentID, FirstName, LastName) VALUES(01, 'Sophia', 'Smith');
 INSERT INTO students(StudentID, FirstName, LastName) VALUES(02, 'Liam', 'Brown');
 INSERT INTO students(StudentID, FirstName, LastName) VALUES(03, 'Emma', 'Johnson');
+INSERT INTO students(StudentID, FirstName, LastName) VALUES(04, 'Jacob', 'Juarez');
 
 COMMIT;
