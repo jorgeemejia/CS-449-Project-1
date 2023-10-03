@@ -6,8 +6,8 @@ CREATE TABLE students (
     FirstName VARCHAR,
     LastName VARCHAR
 );
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(01, 'Sophia', 'Smith');
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(02, 'Liam', 'Brown');
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(03, 'Emma', 'Johnson');
-
+INSERT INTO students(StudentID, FirstName, LastName) VALUES(1, 'Sophia', 'Smith');
+INSERT INTO students(StudentID, FirstName, LastName) VALUES(2, 'Liam', 'Brown');
+INSERT INTO students(StudentID, FirstName, LastName) VALUES(3, 'Emma', 'Johnson');
+INSERT INTO students(StudentID, FirstName, LastName) VALUES(4, 'Jacob', 'Juarez');
 COMMIT;

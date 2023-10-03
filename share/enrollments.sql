@@ -8,5 +8,6 @@ CREATE TABLE enrollments (
     CONSTRAINT fk_enroll_students FOREIGN KEY (StudentID) REFERENCES students(StudentID)
     CONSTRAINT fk_enroll_classes FOREIGN KEY (ClassID) REFERENCES classes(ClassID)
 );
-INSERT INTO enrollments(StudentID, ClassID) VALUES (02,01);
+INSERT INTO enrollments(StudentID, ClassID) VALUES (2,1);
+INSERT INTO enrollments(StudentID, ClassID) VALUES (4,1);
 COMMIT;
