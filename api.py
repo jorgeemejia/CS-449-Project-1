@@ -27,6 +27,25 @@ class Enrollment(BaseModel):
     StudentID: int
     ClassID: int
 
+class Instructor(BaseModel):
+    InstructorID: int
+    FirstName: str
+    LastName: str
+
+class Classes(BaseModel):
+    ClassID: int
+    ClassSectionNumber: int
+    CourseID: int
+    InstructorID: int
+    MaxClassEnrollment: int
+
+class Student(BaseModel):
+    StudentID: int
+    FirstName: str
+    LastName: str
+
+
+
 
 def get_db():
     with contextlib.closing(sqlite3.connect(settings.database)) as db:
@@ -73,12 +92,31 @@ def remove_from_waitlist(StudentID: int, ClassID: int, db: sqlite3.Connection = 
         raise HTTPException(status_code=500, detail="Waitlist removal failed")
 
 
+@app.get("/instructors/{InstructorID}/classes/enrollments/students")
+def get_instructor_enrollment(InstructorID:int,db:sqlite3.Connection = Depends(get_db)):
+    try:
+
+        instructor_enrollments = db.execute('''
+                        Select s.FirstName, s.LastName 
+                        FROM students s 
+                        JOIN enrollments e ON s.StudentID=e.StudentID
+                        JOIN classes c ON e.ClassID = c.ClassID
+                        JOIN instructors i ON c.InstructorID = i.InstructorID
+                        WHERE i.InstructorID = ?''',[InstructorID])
+        
+        return {"Students":instructor_enrollments.fetchall()}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = "Query Failed")
+
+
+
 @app.get("/departments")
 def list_departments(db: sqlite3.Connection = Depends(get_db)):
     departments = db.execute("SELECT * FROM departments")
     return {"departments": departments.fetchall()}
 
-@app.get("/instructors")
+@app.get("/instructors/")
 def list_instructors(db: sqlite3.Connection = Depends(get_db)):
     instructors = db.execute("SELECT * FROM instructors")
     return {"instructors": instructors.fetchall()}
