@@ -14,4 +14,17 @@ CREATE TABLE classes (
 
 INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
              VALUES(1,1,1,1,10);
+INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
+             VALUES(2,2,1,1,10);
+INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
+             VALUES(3,2,2,2,10);
+INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
+             VALUES(4,1,3,3,10);
+INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
+             VALUES(5,1,4,4,10);
+INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
+             VALUES(6,1,4,4,10);   
+INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
+             VALUES(7,1,5,5,10);      
+
 COMMIT;
