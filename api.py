@@ -66,6 +66,18 @@ logging.config.fileConfig(settings.logging_config, disable_existing_loggers=Fals
 def hello_world():
     return {"Up and running"}
 
+@app.delete("/instructor/classes/{ClassID}/students/{StudentID}/enrollments/remove")
+def administratively_remove_student(ClassID: int, StudentID: int, db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+        cursor.execute('DELETE FROM enrollments WHERE ClassID = ? AND StudentID = ?', (ClassID, StudentID))
+        cursor.execute("INSERT INTO droplists (ClassID, StudentID, AdminDrop) VALUES (?, ?, ?)", (ClassID, StudentID, 1))
+        db.commit()
+        return {"message": "Administrative disenrollment successful"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Administrative dissenrollment failed")
+
 @app.delete("/student/class/drop/{StudentID}/{ClassID}")
 def drop_student_from_class(StudentID: int, ClassID: int, db: sqlite3.Connection = Depends(get_db)):
     try:
