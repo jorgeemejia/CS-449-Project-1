@@ -13,6 +13,16 @@ class Settings(BaseSettings, env_file=".env", extra="ignore"):
     database: str
     logging_config: str
 
+class Drop(BaseModel):
+    StudentID: int
+    ClassID: int
+
+
+# class Book(BaseModel):
+#     published: int
+#     author: str
+#     title: str
+#     first_sentence: str
 class Enrollment(BaseModel):
     StudentID: int
     ClassID: int
@@ -37,6 +47,17 @@ logging.config.fileConfig(settings.logging_config, disable_existing_loggers=Fals
 def hello_world():
     return {"Up and running"}
 
+@app.delete("/student/class/drop/{StudentID}/{ClassID}")
+def drop_student_from_class(StudentID: int, ClassID: int, db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+        cursor.execute('DELETE FROM enrollments WHERE StudentID = ? AND ClassID = ?', (StudentID, ClassID))
+        cursor.execute("INSERT INTO droplists (StudentID, ClassID, AdminDrop) VALUES (?, ?, ?)", (StudentID, ClassID, 0))
+        db.commit()
+        return {"message": "Drop successful"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Class drop failed")
 
 @app.delete("/waitlist/remove/{StudentID}/{ClassID}")
 def remove_from_waitlist(StudentID: int, ClassID: int, db: sqlite3.Connection = Depends(get_db)):
