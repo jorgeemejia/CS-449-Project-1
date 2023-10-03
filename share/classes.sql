@@ -13,5 +13,5 @@ CREATE TABLE classes (
 
 
 INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
-             VALUES(01,01,01,01,05);
+             VALUES(1,1,1,1,10);
 COMMIT;

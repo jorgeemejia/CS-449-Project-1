@@ -23,6 +23,9 @@ class Drop(BaseModel):
 #     author: str
 #     title: str
 #     first_sentence: str
+class Enrollment(BaseModel):
+    StudentID: int
+    ClassID: int
 
 
 def get_db():
@@ -55,6 +58,19 @@ def drop_student_from_class(StudentID: int, ClassID: int, db: sqlite3.Connection
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail="Class drop failed")
+
+@app.delete("/waitlist/remove/{StudentID}/{ClassID}")
+def remove_from_waitlist(StudentID: int, ClassID: int, db: sqlite3.Connection = Depends(get_db)):
+    
+    try:
+        cursor = db.cursor()
+
+        cursor.execute('DELETE FROM waitlists WHERE StudentID = ? AND ClassID = ?', (StudentID, ClassID))
+        db.commit()
+        return {"message": "Waitlist removal successful"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Waitlist removal failed")
 
 
 @app.get("/departments")
