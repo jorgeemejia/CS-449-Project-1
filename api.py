@@ -3,10 +3,14 @@ import contextlib
 import logging.config
 import sqlite3
 import typing
+import logging
 
 from fastapi import FastAPI, Depends, Response, HTTPException, status
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__) 
 
 
 class Settings(BaseSettings, env_file=".env", extra="ignore"):
@@ -17,12 +21,6 @@ class Drop(BaseModel):
     StudentID: int
     ClassID: int
 
-
-# class Book(BaseModel):
-#     published: int
-#     author: str
-#     title: str
-#     first_sentence: str
 class Enrollment(BaseModel):
     StudentID: int
     ClassID: int
@@ -43,6 +41,12 @@ class Student(BaseModel):
     StudentID: int
     FirstName: str
     LastName: str
+
+class ClassModel(BaseModel):
+    ClassID: int
+    CourseID: int
+    InstructorID: int
+    ClassMaximumEnrollment: int
 
 
 
@@ -65,6 +69,48 @@ logging.config.fileConfig(settings.logging_config, disable_existing_loggers=Fals
 @app.get("/")
 def hello_world():
     return {"Up and running"}
+
+@app.post("/enroll")
+def allow_students_to_attempt_to_enroll(enrollment: Enrollment,
+                                        db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+
+        cursor.execute('SELECT COUNT(*) FROM enrollments WHERE ClassID = (?)', (enrollment.ClassID,))
+        classCurrentEnrollment = cursor.fetchone()[0]
+        cursor.execute('SELECT ClassMaximumEnrollment FROM classes WHERE ClassID = (?)', (enrollment.ClassID,))
+        classMaximumEnrollment = cursor.fetchone()[0]
+
+
+        if classCurrentEnrollment >= classMaximumEnrollment:
+            raise HTTPException(status_code=400, detail="Class Maximum Enrollment Has Been Exceeded")
+
+        cursor.execute("INSERT INTO enrollments (StudentID, ClassID) VALUES (?, ?)", (enrollment.StudentID, enrollment.ClassID))
+        db.commit()
+        return {"message": "Enrollment successful"}
+
+    except HTTPException as e:
+        logger.error(f"HTTPException: {e.status_code} - {e.detail}")
+    except Exception as e:
+        logger.exception("An error occurred during enrollment")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Enrollment failed")
+
+@app.post("/classes/add")
+def registry_add_class(classmodel: ClassModel, db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+        cursor.execute('SELECT COUNT(*) FROM classes WHERE CourseID = (?)', (classmodel.CourseID, ))
+        sectionNumber = cursor.fetchone()[0]
+        sectionNumber += 1
+        logger.debug(f"sectionNumber: {sectionNumber}")
+        cursor.execute("INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) VALUES (?, ?, ?, ? , ?)",
+                                           (classmodel.ClassID, sectionNumber, classmodel.CourseID, classmodel.InstructorID, classmodel.ClassMaximumEnrollment))
+        return {"message": "Class addition successful"}
+    except Exception as e:
+        logger.exception("An error occurred during class addition")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Class addition failed")
 
 @app.delete("/student/class/drop/{StudentID}/{ClassID}")
 def drop_student_from_class(StudentID: int, ClassID: int, db: sqlite3.Connection = Depends(get_db)):
