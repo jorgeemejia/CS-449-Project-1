@@ -3,10 +3,14 @@ import contextlib
 import logging.config
 import sqlite3
 import typing
+import logging
 
 from fastapi import FastAPI, Depends, Response, HTTPException, status
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__) 
 
 
 class Settings(BaseSettings, env_file=".env", extra="ignore"):
@@ -65,6 +69,29 @@ logging.config.fileConfig(settings.logging_config, disable_existing_loggers=Fals
 @app.get("/")
 def hello_world():
     return {"Up and running"}
+
+@app.delete("/classes/{ClassID}/remove", description = "Allow the registry to remove an existing class")
+def remove_class(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+
+        logging.debug(f"Deleting class with ClassID: {ClassID}")
+
+        #Erasing that class from every single table, might be excessive, we could discuss this 
+        cursor.execute('DELETE FROM classes WHERE ClassID = ?', (ClassID, ))
+        logging.debug("Deleted from classes table")
+        cursor.execute('DELETE FROM enrollments WHERE ClassID = ?', (ClassID, ))
+        logging.debug("Deleted from enrollments table")
+        cursor.execute('DELETE FROM waitlists WHERE ClassID = ?', (ClassID, ))
+        logging.debug("Deleted from waitlists table")
+        cursor.execute('DELETE FROM droplists WHERE ClassID = ?', (ClassID, ))
+        logging.debug("Deleted from droplists table")
+        db.commit()
+        return {"message": "Class removal successful"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Class removal failed")
+
 
 @app.delete("/student/class/drop/{StudentID}/{ClassID}")
 def drop_student_from_class(StudentID: int, ClassID: int, db: sqlite3.Connection = Depends(get_db)):
