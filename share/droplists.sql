@@ -5,6 +5,7 @@ CREATE TABLE droplists (
     StudentID INTEGER,
     ClassID INTEGER,
     AdminDrop BOOLEAN,
+    DropDate DATE,
     PRIMARY KEY(StudentID, ClassID)
     CONSTRAINT fk_drop_students FOREIGN KEY (StudentID) REFERENCES students(StudentID)
     CONSTRAINT fk_drop_classes FOREIGN KEY (ClassID) REFERENCES classes(ClassID)
