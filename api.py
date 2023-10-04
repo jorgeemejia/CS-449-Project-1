@@ -5,7 +5,7 @@ import sqlite3
 import typing
 import logging
 
-from fastapi import FastAPI, Depends, Response, HTTPException, status
+from fastapi import FastAPI, Depends, Response, HTTPException, status, Path
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
@@ -21,12 +21,6 @@ class Drop(BaseModel):
     StudentID: int
     ClassID: int
 
-
-# class Book(BaseModel):
-#     published: int
-#     author: str
-#     title: str
-#     first_sentence: str
 class Enrollment(BaseModel):
     StudentID: int
     ClassID: int
@@ -47,6 +41,12 @@ class Student(BaseModel):
     StudentID: int
     FirstName: str
     LastName: str
+
+class ClassModel(BaseModel):
+    ClassID: int
+    CourseID: int
+    InstructorID: int
+    ClassMaximumEnrollment: int
 
 
 
@@ -70,6 +70,7 @@ logging.config.fileConfig(settings.logging_config, disable_existing_loggers=Fals
 def hello_world():
     return {"Up and running"}
 
+<<<<<<< HEAD
 @app.delete("/classes/{ClassID}/remove", description = "Allow the registry to remove an existing class")
 def remove_class(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
     try:
@@ -92,6 +93,63 @@ def remove_class(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=500, detail="Class removal failed")
 
+=======
+<<<<<<< HEAD
+@app.post("/enroll")
+def allow_students_to_attempt_to_enroll(enrollment: Enrollment,
+                                        db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+
+        cursor.execute('SELECT COUNT(*) FROM enrollments WHERE ClassID = (?)', (enrollment.ClassID,))
+        classCurrentEnrollment = cursor.fetchone()[0]
+        cursor.execute('SELECT ClassMaximumEnrollment FROM classes WHERE ClassID = (?)', (enrollment.ClassID,))
+        classMaximumEnrollment = cursor.fetchone()[0]
+
+
+        if classCurrentEnrollment >= classMaximumEnrollment:
+            raise HTTPException(status_code=400, detail="Class Maximum Enrollment Has Been Exceeded")
+
+        cursor.execute("INSERT INTO enrollments (StudentID, ClassID) VALUES (?, ?)", (enrollment.StudentID, enrollment.ClassID))
+        db.commit()
+        return {"message": "Enrollment successful"}
+
+    except HTTPException as e:
+        logger.error(f"HTTPException: {e.status_code} - {e.detail}")
+    except Exception as e:
+        logger.exception("An error occurred during enrollment")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Enrollment failed")
+
+@app.post("/classes/add")
+def registry_add_class(classmodel: ClassModel, db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+        cursor.execute('SELECT COUNT(*) FROM classes WHERE CourseID = (?)', (classmodel.CourseID, ))
+        sectionNumber = cursor.fetchone()[0]
+        sectionNumber += 1
+        logger.debug(f"sectionNumber: {sectionNumber}")
+        cursor.execute("INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) VALUES (?, ?, ?, ? , ?)",
+                                           (classmodel.ClassID, sectionNumber, classmodel.CourseID, classmodel.InstructorID, classmodel.ClassMaximumEnrollment))
+        return {"message": "Class addition successful"}
+    except Exception as e:
+        logger.exception("An error occurred during class addition")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Class addition failed")
+=======
+@app.delete("/instructor/classes/{ClassID}/students/{StudentID}/enrollments/remove")
+def administratively_remove_student(ClassID: int, StudentID: int, db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+        cursor.execute('DELETE FROM enrollments WHERE ClassID = ? AND StudentID = ?', (ClassID, StudentID))
+        cursor.execute("INSERT INTO droplists (ClassID, StudentID, AdminDrop) VALUES (?, ?, ?)", (ClassID, StudentID, 1))
+        db.commit()
+        return {"message": "Administrative disenrollment successful"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Administrative dissenrollment failed")
+>>>>>>> main
+>>>>>>> main
 
 @app.delete("/student/class/drop/{StudentID}/{ClassID}")
 def drop_student_from_class(StudentID: int, ClassID: int, db: sqlite3.Connection = Depends(get_db)):
@@ -118,6 +176,15 @@ def remove_from_waitlist(StudentID: int, ClassID: int, db: sqlite3.Connection = 
         db.rollback()
         raise HTTPException(status_code=500, detail="Waitlist removal failed")
 
+#View students who dropped a class
+@app.get("/classes/{class_id}/droplists",summary="List class droplists", description="View students who dropped a class")
+def list_class_droplists(class_id: int = Path(..., description="ID of class to retrieve dropped students for"), db: sqlite3.Connection = Depends(get_db)):
+    droplists = db.execute(
+        "SELECT * FROM droplists WHERE ClassID = ?", (class_id,))
+    return {
+        "class_id": class_id,
+        "droplists": droplists.fetchall()}
+
 
 @app.get("/instructors/{InstructorID}/classes/enrollments/students")
 def get_instructor_enrollment(InstructorID:int,db:sqlite3.Connection = Depends(get_db)):
@@ -137,46 +204,46 @@ def get_instructor_enrollment(InstructorID:int,db:sqlite3.Connection = Depends(g
         raise HTTPException(status_code = 500, detail = "Query Failed")
 
 
-
-@app.get("/departments")
+#=======================Sanity Check==============================
+@app.get("/departments",summary="List all departments", description="View all departments")
 def list_departments(db: sqlite3.Connection = Depends(get_db)):
     departments = db.execute("SELECT * FROM departments")
     return {"departments": departments.fetchall()}
 
-@app.get("/instructors/")
+@app.get("/instructors",summary="List all instructors", description="View all instructors")
 def list_instructors(db: sqlite3.Connection = Depends(get_db)):
     instructors = db.execute("SELECT * FROM instructors")
     return {"instructors": instructors.fetchall()}
 
-@app.get("/courses")
+@app.get("/courses", description="View all courses")
 def list_courses(db: sqlite3.Connection = Depends(get_db)):
     courses = db.execute("SELECT * FROM courses")
     return {"courses": courses.fetchall()}
 
-@app.get("/enrollments")
+@app.get("/enrollments", description="View all enrollments")
 def list_enrollments(db: sqlite3.Connection = Depends(get_db)):
     enrollments = db.execute("SELECT * FROM enrollments")
     return {"enrollments": enrollments.fetchall()}
 
-@app.get("/droplists")
+@app.get("/droplists", description="View all droplists")
 def list_droplists(db: sqlite3.Connection = Depends(get_db)):
     droplists = db.execute("SELECT * FROM droplists")
     return {"droplists": droplists.fetchall()}
 
-@app.get("/waitlists")
+@app.get("/waitlists", description="View all waitlists")
 def list_waitlists(db: sqlite3.Connection = Depends(get_db)):
     waitlists = db.execute("SELECT * FROM waitlists")
     return {"waitlists": waitlists.fetchall()}
 
-@app.get("/students")
+@app.get("/students", description="View all students")
 def list_students(db: sqlite3.Connection = Depends(get_db)):
     students = db.execute("SELECT * FROM students")
     return {"students": students.fetchall()}
 
-@app.get("/classes")
+@app.get("/classes", description="View all classes")
 def list_classes(db: sqlite3.Connection = Depends(get_db)):
     classes = db.execute("SELECT * FROM classes")
-    return {"droplists": classes.fetchall()}
+    return {"classes": classes.fetchall()}
 
 # @app.get("/books/")
 # def list_books(db: sqlite3.Connection = Depends(get_db)):
