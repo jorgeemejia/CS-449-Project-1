@@ -4,7 +4,7 @@ import logging.config
 import sqlite3
 import typing
 
-from fastapi import FastAPI, Depends, Response, HTTPException, status
+from fastapi import FastAPI, Depends, Response, HTTPException, status, Path
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
@@ -91,6 +91,15 @@ def remove_from_waitlist(StudentID: int, ClassID: int, db: sqlite3.Connection = 
         db.rollback()
         raise HTTPException(status_code=500, detail="Waitlist removal failed")
 
+#View students who dropped a class
+@app.get("/classes/{class_id}/droplists",summary="List class droplists", description="View students who dropped a class")
+def list_class_droplists(class_id: int = Path(..., description="ID of class to retrieve dropped students for"), db: sqlite3.Connection = Depends(get_db)):
+    droplists = db.execute(
+        "SELECT * FROM droplists WHERE ClassID = ?", (class_id,))
+    return {
+        "class_id": class_id,
+        "droplists": droplists.fetchall()}
+
 
 @app.get("/instructors/{InstructorID}/classes/enrollments/students")
 def get_instructor_enrollment(InstructorID:int,db:sqlite3.Connection = Depends(get_db)):
@@ -110,46 +119,46 @@ def get_instructor_enrollment(InstructorID:int,db:sqlite3.Connection = Depends(g
         raise HTTPException(status_code = 500, detail = "Query Failed")
 
 
-
-@app.get("/departments")
+#=======================Sanity Check==============================
+@app.get("/departments",summary="List all departments", description="View all departments")
 def list_departments(db: sqlite3.Connection = Depends(get_db)):
     departments = db.execute("SELECT * FROM departments")
     return {"departments": departments.fetchall()}
 
-@app.get("/instructors/")
+@app.get("/instructors",summary="List all instructors", description="View all instructors")
 def list_instructors(db: sqlite3.Connection = Depends(get_db)):
     instructors = db.execute("SELECT * FROM instructors")
     return {"instructors": instructors.fetchall()}
 
-@app.get("/courses")
+@app.get("/courses", description="View all courses")
 def list_courses(db: sqlite3.Connection = Depends(get_db)):
     courses = db.execute("SELECT * FROM courses")
     return {"courses": courses.fetchall()}
 
-@app.get("/enrollments")
+@app.get("/enrollments", description="View all enrollments")
 def list_enrollments(db: sqlite3.Connection = Depends(get_db)):
     enrollments = db.execute("SELECT * FROM enrollments")
     return {"enrollments": enrollments.fetchall()}
 
-@app.get("/droplists")
+@app.get("/droplists", description="View all droplists")
 def list_droplists(db: sqlite3.Connection = Depends(get_db)):
     droplists = db.execute("SELECT * FROM droplists")
     return {"droplists": droplists.fetchall()}
 
-@app.get("/waitlists")
+@app.get("/waitlists", description="View all waitlists")
 def list_waitlists(db: sqlite3.Connection = Depends(get_db)):
     waitlists = db.execute("SELECT * FROM waitlists")
     return {"waitlists": waitlists.fetchall()}
 
-@app.get("/students")
+@app.get("/students", description="View all students")
 def list_students(db: sqlite3.Connection = Depends(get_db)):
     students = db.execute("SELECT * FROM students")
     return {"students": students.fetchall()}
 
-@app.get("/classes")
+@app.get("/classes", description="View all classes")
 def list_classes(db: sqlite3.Connection = Depends(get_db)):
     classes = db.execute("SELECT * FROM classes")
-    return {"droplists": classes.fetchall()}
+    return {"classes": classes.fetchall()}
 
 # @app.get("/books/")
 # def list_books(db: sqlite3.Connection = Depends(get_db)):
