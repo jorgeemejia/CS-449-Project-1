@@ -71,6 +71,30 @@ def hello_world():
     return {"Up and running"}
 
 <<<<<<< HEAD
+@app.delete("/classes/{ClassID}/remove", description = "Allow the registry to remove an existing class")
+def remove_class(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+
+        logging.debug(f"Deleting class with ClassID: {ClassID}")
+
+        #Erasing that class from every single table, might be excessive, we could discuss this 
+        cursor.execute('DELETE FROM classes WHERE ClassID = ?', (ClassID, ))
+        logging.debug("Deleted from classes table")
+        cursor.execute('DELETE FROM enrollments WHERE ClassID = ?', (ClassID, ))
+        logging.debug("Deleted from enrollments table")
+        cursor.execute('DELETE FROM waitlists WHERE ClassID = ?', (ClassID, ))
+        logging.debug("Deleted from waitlists table")
+        cursor.execute('DELETE FROM droplists WHERE ClassID = ?', (ClassID, ))
+        logging.debug("Deleted from droplists table")
+        db.commit()
+        return {"message": "Class removal successful"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Class removal failed")
+
+=======
+<<<<<<< HEAD
 @app.post("/enroll")
 def allow_students_to_attempt_to_enroll(enrollment: Enrollment,
                                         db: sqlite3.Connection = Depends(get_db)):
@@ -124,6 +148,7 @@ def administratively_remove_student(ClassID: int, StudentID: int, db: sqlite3.Co
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail="Administrative dissenrollment failed")
+>>>>>>> main
 >>>>>>> main
 
 @app.delete("/student/class/drop/{StudentID}/{ClassID}")
