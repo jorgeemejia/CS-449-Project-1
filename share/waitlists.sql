@@ -11,12 +11,12 @@ CREATE TABLE waitlists (
 );
 INSERT INTO waitlists(StudentID, ClassID, WaitlistDate) VALUES (3, 1, '2023-09-23');
 INSERT INTO waitlists(StudentID, ClassID, WaitlistDate) VALUES (5, 1, '2023-10-23');
-INSERT INTO waitlists(StudentID, ClassID, WaitlistDate) VALUES (6, 1, '2023-10-23');
-INSERT INTO waitlists(StudentID, ClassID, WaitlistDate) VALUES (7, 1, '2023-10-23');
+INSERT INTO waitlists(StudentID, ClassID, WaitlistDate) VALUES (6, 1, '2023-11-23');
+INSERT INTO waitlists(StudentID, ClassID, WaitlistDate) VALUES (7, 1, '2023-12-23');
 INSERT INTO waitlists(StudentID, ClassID, WaitlistDate) VALUES (6, 2, '2023-10-23');
 INSERT INTO waitlists(StudentID, ClassID, WaitlistDate) VALUES (4, 3, '2023-10-23');
 INSERT INTO waitlists(StudentID, ClassID, WaitlistDate) VALUES (3, 2, '2023-10-23');
-INSERT INTO waitlists(StudentID, ClassID, WaitlistDate) VALUES (1, 1, '2023-10-23');
+INSERT INTO waitlists(StudentID, ClassID, WaitlistDate) VALUES (1, 1, '2023-13-23');
 
 
 COMMIT;

@@ -70,6 +70,30 @@ logging.config.fileConfig(settings.logging_config, disable_existing_loggers=Fals
 def hello_world():
     return {"Up and running"}
 
+@app.get("/classes/{ClassID}/students/{StudentID}/waitlists/position", description="Allow students to view waitlist position for a class")
+def list_waitlist_position(ClassID: int, StudentID: int,db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+        cursor.execute('''SELECT COUNT(*) as Position
+                          FROM waitlists
+                          WHERE ClassID = ? AND WaitListDate < (
+                              SELECT WaitListDate 
+                              FROM waitlists 
+                              WHERE ClassID = ? AND StudentID = ?
+                          )''', (ClassID, ClassID, StudentID))
+        
+        position = cursor.fetchone()
+        
+        if position:
+            return {"Waitlist Position": position["Position"] + 1}
+        else:
+            return {"Waitlist Position": None}
+    
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = "Unable to get waitlist position")
+
+
 @app.get("/classes/{ClassID}/waitlists", description="Allow instructors to view the current waiting list for a class")
 def list_class_waitlist(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
     try:
