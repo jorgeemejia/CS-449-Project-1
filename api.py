@@ -111,12 +111,26 @@ def get_instructor_enrollment(InstructorID:int,db:sqlite3.Connection = Depends(g
                         JOIN enrollments e ON s.StudentID=e.StudentID
                         JOIN classes c ON e.ClassID = c.ClassID
                         JOIN instructors i ON c.InstructorID = i.InstructorID
-                        WHERE i.InstructorID = ?''',[InstructorID])
+                        WHERE i.InstructorID = ?;''',[InstructorID])
         
         return {"Students":instructor_enrollments.fetchall()}
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code = 500, detail = "Query Failed")
+    
+@app.put('/classes/{ClassID}/update/instructors/{InstructorID}')
+def change_instructor(InstructorID:int,ClassID:int, db:sqlite3.Connection = Depends(get_db)):
+    try:
+        instructor_change = db.execute('''
+                UPDATE classes
+                SET InstructorID = ?
+                WHERE ClassID = ?;''', (InstructorID, ClassID))
+        db.commit()
+        return {"message":f"Instructor for class {ClassID} has been changed to {InstructorID}"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = "Instructor change failed")
+
 
 
 #=======================Sanity Check==============================
