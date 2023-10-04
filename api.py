@@ -70,7 +70,25 @@ logging.config.fileConfig(settings.logging_config, disable_existing_loggers=Fals
 def hello_world():
     return {"Up and running"}
 
-<<<<<<< HEAD
+@app.get("/classes/{ClassID}/waitlists", description="Allow instructors to view the current waiting list for a class")
+def list_class_waitlist(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+
+        cursor.execute('''SELECT waitlists.ClassID, students.StudentID, students.FirstName, students.LastName, waitlists.WaitlistDate 
+                          FROM students 
+                          JOIN waitlists ON students.StudentID = waitlists.StudentID 
+                          WHERE waitlists.ClassID = ?''',(ClassID, ))
+        waitlist = cursor.fetchall()
+        return {"waitlist": waitlist}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Unable to view class waitlist")
+    
+    finally:
+        cursor.close()
+
 @app.delete("/classes/{ClassID}/remove", description = "Allow the registry to remove an existing class")
 def remove_class(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
     try:
@@ -93,8 +111,6 @@ def remove_class(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=500, detail="Class removal failed")
 
-=======
-<<<<<<< HEAD
 @app.post("/enroll")
 def allow_students_to_attempt_to_enroll(enrollment: Enrollment,
                                         db: sqlite3.Connection = Depends(get_db)):
@@ -136,7 +152,7 @@ def registry_add_class(classmodel: ClassModel, db: sqlite3.Connection = Depends(
         logger.exception("An error occurred during class addition")
         db.rollback()
         raise HTTPException(status_code=500, detail="Class addition failed")
-=======
+    
 @app.delete("/instructor/classes/{ClassID}/students/{StudentID}/enrollments/remove")
 def administratively_remove_student(ClassID: int, StudentID: int, db: sqlite3.Connection = Depends(get_db)):
     try:
@@ -148,8 +164,6 @@ def administratively_remove_student(ClassID: int, StudentID: int, db: sqlite3.Co
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail="Administrative dissenrollment failed")
->>>>>>> main
->>>>>>> main
 
 @app.delete("/student/class/drop/{StudentID}/{ClassID}")
 def drop_student_from_class(StudentID: int, ClassID: int, db: sqlite3.Connection = Depends(get_db)):
