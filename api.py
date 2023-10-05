@@ -297,7 +297,7 @@ def list_classes(db: sqlite3.Connection = Depends(get_db)):
     classes = db.execute("SELECT * FROM classes")
     return {"classes": classes.fetchall()}
 
-@app.get('users', description = 'Show all users')
+@app.get('/users', description = 'Show all users')
 def list_users(db:sqlite3.Connection = Depends(get_db)):
     users = db.execute("SELECT * FROM users")
     return {"users":users.fetchall()}
