@@ -27,3 +27,6 @@ Get-Content .\share\waitlists.sql | sqlite3 .\var\titanonline_clone.db
 # Execute droplists.sql
 Get-Content .\share\droplists.sql | sqlite3 .\var\titanonline_clone.db
 
+# Execute users.sql
+Get-Content .\share\users.sql | sqlite3 .\var\titanonline_clone.db
+
