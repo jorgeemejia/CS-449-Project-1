@@ -8,16 +8,24 @@ CREATE TABLE students (
     UserID INTEGER,
     CONSTRAINT fk_student_users FOREIGN KEY (UserID) REFERENCES users(UserID)
 );
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(1, 'Sophia', 'Smith',6);
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(2, 'Liam', 'Brown',7);
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(3, 'Emma', 'Johnson',8);
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(4, 'Jacob', 'Juarez',9);
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(5, 'Olivia', 'Davis',10);
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(6, 'Noah', 'Martinez',11);
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(7, 'Ava', 'Wilson',12);
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(8, 'William', 'Taylor',13);
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(9, 'Isabella', 'Anderson',14);
-INSERT INTO students(StudentID, FirstName, LastName) VALUES(10, 'James', 'Hernandez',15);
+INSERT INTO students (StudentID, FirstName, LastName, UserID)
+VALUES
+    (1, 'Michael', 'Johnson', 6),
+    (2, 'Emily', 'Wilson', 7),
+    (3, 'David', 'Brown', 8),
+    (4, 'Sarah', 'Anderson', 9),
+    (5, 'Robert', 'Lee', 10),
+    (6, 'Jennifer', 'Clark', 11),
+    (7, 'William', 'Davis', 12),
+    (8, 'Maria', 'Martinez', 13),
+    (9, 'Linda', 'Garcia', 14),
+    (10, 'James', 'Hernandez', 15),
+    (11, 'Sophia', 'Williams', 16),
+    (12, 'Ethan', 'Jones', 17),
+    (13, 'Olivia', 'Brown', 18),
+    (14, 'Liam', 'Davis', 19),
+    (15, 'Ava', 'Garcia', 20);
+
 
 
 COMMIT;
