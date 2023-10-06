@@ -10,21 +10,18 @@ CREATE TABLE classes (
     CONSTRAINT fk_courses FOREIGN KEY (CourseID) REFERENCES courses(CourseID)
     CONSTRAINT fk_instructors FOREIGN KEY (InstructorID) REFERENCES instructors(InstructorID) 
 );
+INSERT INTO classes (ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment)
+VALUES
+    (1, 1, 1, 1, 30),
+    (2, 2, 2, 2, 25),
+    (3, 3, 3, 3, 20),
+    (4, 1, 4, 4, 35),
+    (5, 2, 5, 5, 28),
+    (6, 3, 6, 6, 32),
+    (7, 1, 7, 7, 22),
+    (8, 2, 8, 8, 18),
+    (9, 3, 9, 9, 27),
+    (10, 1, 10, 10, 23);
 
-
-INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
-             VALUES(1,1,1,1,10);
-INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
-             VALUES(2,2,1,1,10);
-INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
-             VALUES(3,2,2,2,10);
-INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
-             VALUES(4,1,3,3,10);
-INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
-             VALUES(5,1,4,4,10);
-INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
-             VALUES(6,1,4,4,10);   
-INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) 
-             VALUES(7,1,5,5,10);      
 
 COMMIT;

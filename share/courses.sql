@@ -7,11 +7,17 @@ CREATE TABLE courses (
     DepartmentID INTEGER,
     CONSTRAINT fk_departments FOREIGN KEY (DepartmentID) REFERENCES departments(DepartmentID)
 );
-INSERT INTO courses(CourseID, CourseName, DepartmentID) VALUES(01, 'Intro to Computer Science', 01);
-INSERT INTO courses(CourseID, CourseName, DepartmentID) VALUES(02, 'Object-Oriented Programming', 01);
-INSERT INTO courses(CourseID, CourseName, DepartmentID) VALUES(03, 'Data Structures', 01);
-INSERT INTO courses(CourseID, CourseName, DepartmentID) VALUES(04, 'Calculus I', 03);
-INSERT INTO courses(CourseID, CourseName, DepartmentID) VALUES(05, 'Elements of Biology', 04);
-INSERT INTO courses(CourseID, CourseName, DepartmentID) VALUES(06, 'Intro to General Chemistry', 05);
+INSERT INTO courses (CourseID, CourseName, DepartmentID)
+VALUES
+    (1, 'Introduction to Programming', 1),
+    (2, 'Calculus I', 2),
+    (3, 'Physics for Engineers', 3),
+    (4, 'Biology 101', 4),
+    (5, 'General Chemistry', 5),
+    (6, 'World History', 6),
+    (7, 'English Composition', 7),
+    (8, 'Psychology 101', 8),
+    (9, 'Microeconomics', 9),
+    (10, 'Introduction to Mechanical Engineering', 10);
 
 COMMIT;

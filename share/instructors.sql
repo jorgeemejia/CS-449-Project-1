@@ -8,11 +8,19 @@ CREATE TABLE instructors (
     UserID INTEGER,
     CONSTRAINT fk_users FOREIGN KEY (UserID) REFERENCES users(UserID)
 );
-INSERT INTO instructors(InstructorID, FirstName, LastName, UserID) VALUES(01, 'John', 'Smith', 1);
-INSERT INTO instructors(InstructorID, FirstName, LastName, UserID) VALUES(02, 'Kenytt', 'Avery', 2);
-INSERT INTO instructors(InstructorID, FirstName, LastName, UserID) VALUES(03, 'Paul', 'Wall', 3);
-INSERT INTO instructors(InstructorID, FirstName, LastName, UserID) VALUES(04, 'Chris', 'Carpenter', 4);
-INSERT INTO instructors(InstructorID, FirstName, LastName, UserID) VALUES(05, 'Jack', 'White', 5);
+INSERT INTO instructors (InstructorID, FirstName, LastName, UserID)
+VALUES
+    (1, 'John', 'Smith', 1),
+    (2, 'Jane', 'Doe', 2),
+    (3, 'Michael', 'Johnson', 3),
+    (4, 'Emily', 'Wilson', 4),
+    (5, 'David', 'Brown', 5),
+    (6, 'Sarah', 'Anderson', 6),
+    (7, 'Robert', 'Lee', 7),
+    (8, 'Jennifer', 'Clark', 8),
+    (9, 'William', 'Davis', 9),
+    (10, 'Maria', 'Martinez', 10);
+
 
 
 COMMIT;
