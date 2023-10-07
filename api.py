@@ -249,8 +249,8 @@ def remove_class(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Class removal failed")
 
 # Operation/Resource 9 
-@app.put('/classes/{ClassID}/{InstructorID}', description="Change the instructor for a section")
-def change_instructor(ClassID:int, InstructorID:int, db:sqlite3.Connection = Depends(get_db)):
+@app.put('/classes/{ClassID}/{ClassSectionNumber}/{InstructorID}', description="Change the instructor for a section")
+def change_instructor(ClassID:int, ClassSectionNumber:int, InstructorID:int, db:sqlite3.Connection = Depends(get_db)):
     try:
         cursor = db.cursor()
         
@@ -258,8 +258,8 @@ def change_instructor(ClassID:int, InstructorID:int, db:sqlite3.Connection = Dep
         cursor.execute('''
             SELECT InstructorID
             FROM classes
-            WHERE ClassID = ?;
-        ''', (ClassID,))
+            WHERE ClassSectionNumber = ?;
+        ''', (ClassSectionNumber,))
 
         current_instructor_id = cursor.fetchone()
 
@@ -275,8 +275,8 @@ def change_instructor(ClassID:int, InstructorID:int, db:sqlite3.Connection = Dep
             FROM classes AS c
             JOIN instructors AS i ON c.InstructorID = i.InstructorID
             JOIN courses AS cr ON c.CourseID = cr.CourseID
-            WHERE c.ClassID = ?;
-        ''', (ClassID,))
+            WHERE c.ClassSectionNumber = ?;
+        ''', (ClassSectionNumber,))
 
         current_info = cursor.fetchone()
         
@@ -287,8 +287,8 @@ def change_instructor(ClassID:int, InstructorID:int, db:sqlite3.Connection = Dep
             cursor.execute('''
                 UPDATE classes
                 SET InstructorID = ?
-                WHERE ClassID = ?;
-            ''', (InstructorID, ClassID))
+                WHERE ClassSectionNumber = ?;
+            ''', (InstructorID, ClassSectionNumber))
 
             # Commit the changes to the database
             db.commit()
@@ -298,20 +298,90 @@ def change_instructor(ClassID:int, InstructorID:int, db:sqlite3.Connection = Dep
                 SELECT i.FirstName, i.LastName
                 FROM classes AS c
                 JOIN instructors AS i ON c.InstructorID = i.InstructorID
-                WHERE c.ClassID = ?;
-            ''', (ClassID,))
+                WHERE c.ClassSectionNumber = ?;
+            ''', (ClassSectionNumber,))
 
             updated_instructor = cursor.fetchone()
 
             if updated_instructor:
                 updated_instructor_first_name, updated_instructor_last_name = updated_instructor
                 return {
-                    "message": f" Instructor for {course_name} - Section {ClassID} has been changed from {current_instructor_first_name} {current_instructor_last_name} to {updated_instructor_first_name} {updated_instructor_last_name}"
+                    "message": f" Instructor for {course_name} - Section {ClassSectionNumber} has been changed from {current_instructor_first_name} {current_instructor_last_name} to {updated_instructor_first_name} {updated_instructor_last_name}"
                 }
         
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code = 500, detail = "Instructor change failed")
+
+# Operation/Resource 10
+@app.put("/settings/auto_enrollment_status", description="Set the auto enrollment status")
+def set_auto_enrollment_status(enrollment_status: EnrollmentStatus, db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+        cursor.execute("UPDATE settings SET SettingValue = ? WHERE SettingName = 'auto_enrollment_status'", (enrollment_status.status,))
+        db.commit()
+        return {"message": f"Auto enrollment status set to {enrollment_status.status}"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Unable to set auto enrollment status")
+
+# Operation/Resource 11
+@app.get("/waitlists/{StudentID}/{ClassID}", description="View their current position on the waiting list") #Path
+def list_waitlist_position(ClassID: int, StudentID: int,db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+        cursor.execute('''SELECT COUNT(*) as Position
+                          FROM waitlists
+                          WHERE ClassID = ? AND WaitListDate < (
+                              SELECT WaitListDate 
+                              FROM waitlists 
+                              WHERE ClassID = ? AND StudentID = ?
+                          )''', (ClassID, ClassID, StudentID))
+        
+        position = cursor.fetchone()
+        
+        if position:
+            return {"Waitlist Position": position["Position"] + 1}
+        else:
+            return {"Waitlist Position": None}
+    
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code = 500, detail = "Unable to get waitlist position")
+
+# Operation/Resource 12
+@app.delete("/waitlists/{StudentID}/{ClassID}", description="Remove themselves from a waiting list")
+def remove_from_waitlist(StudentID: int, ClassID: int, db: sqlite3.Connection = Depends(get_db)):
+    
+    try:
+        cursor = db.cursor()
+
+        cursor.execute('DELETE FROM waitlists WHERE StudentID = ? AND ClassID = ?', (StudentID, ClassID))
+        db.commit()
+        return {"message": "Waitlist removal successful"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Waitlist removal failed")
+
+# Operation/Resource 13
+@app.get("/waitlists/{ClassID}", description="View the current waiting list for the course")
+def list_class_waitlist(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+
+        cursor.execute('''SELECT waitlists.ClassID, students.StudentID, students.FirstName, students.LastName, waitlists.WaitlistDate 
+                          FROM students 
+                          JOIN waitlists ON students.StudentID = waitlists.StudentID 
+                          WHERE waitlists.ClassID = ?''',(ClassID, ))
+        waitlist = cursor.fetchall()
+        return {"waitlist": waitlist}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Unable to view class waitlist")
+    
+    finally:
+        cursor.close()
 
 # Operation/Resource 10
 @app.put("/settings/auto_enrollment_status", description="Set the auto enrollment status")
