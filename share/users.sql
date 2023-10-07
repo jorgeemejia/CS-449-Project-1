@@ -7,11 +7,11 @@ CREATE TABLE users (
 );
 INSERT INTO users (UserID, Role)
 VALUES
-    (1, 'Instructor'),
+    (1, 'Registrar'),
     (2, 'Instructor'),
     (3, 'Instructor'),
-    (4, 'Instructor'),
-    (5, 'Instructor'),
+    (4, 'Student'),
+    (5, 'Student'),
     (6, 'Student'),
     (7, 'Student'),
     (8, 'Student'),
@@ -27,6 +27,4 @@ VALUES
     (18, 'Student'),
     (19, 'Student'),
     (20, 'Student');
-
-
 COMMIT;

@@ -118,10 +118,14 @@ def enroll_student_in_class(enrollment: Enrollment,
 
         cursor.execute("INSERT INTO enrollments (StudentID, ClassID) VALUES (?, ?)", (enrollment.StudentID, enrollment.ClassID))
         db.commit()
-        return {"message": "Enrollment successful"}
+
+        cursor.execute('SELECT * FROM enrollments WHERE EnrollmentID = last_insert_rowid();')
+        created_enrollment = cursor.fetchone()
+        return {"message": "Enrollment successful", "enrollment": created_enrollment}
 
     except HTTPException as e:
         logger.error(f"HTTPException: {e.status_code} - {e.detail}")
+        raise
     except Exception as e:
         logger.exception("An error occurred during enrollment")
         db.rollback()
@@ -159,12 +163,12 @@ def get_instructor_enrollment(InstructorID:int,db:sqlite3.Connection = Depends(g
         raise HTTPException(status_code = 500, detail = "Query Failed")
     
 # Operation/Resource 5
-@app.get("droplists/{ClassID}",summary="List class droplists", description="View students who dropped the class")
-def list_class_droplists(class_id: int = Path(..., description="ID of class to retrieve dropped students for"), db: sqlite3.Connection = Depends(get_db)):
+@app.get("/droplists/{ClassID}",summary="List class droplists", description="View students who dropped the class")
+def list_class_droplists(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
     droplists = db.execute(
-        "SELECT * FROM droplists WHERE ClassID = ?", (class_id,))
+        "SELECT * FROM droplists WHERE ClassID = ?", (ClassID,))
     return {
-        "class_id": class_id,
+        "class_id": ClassID,
         "droplists": droplists.fetchall()}
 
 # Operation/Resource 6 
@@ -191,7 +195,10 @@ def registry_add_class(classmodel: ClassModel, db: sqlite3.Connection = Depends(
         logger.debug(f"sectionNumber: {sectionNumber}")
         cursor.execute("INSERT INTO classes(ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment) VALUES (?, ?, ?, ? , ?)",
                                            (classmodel.ClassID, sectionNumber, classmodel.CourseID, classmodel.InstructorID, classmodel.ClassMaximumEnrollment))
-        return {"message": "Class addition successful"}
+        db.commit()
+        cursor.execute('SELECT * FROM classes WHERE classID = ? ', (classmodel.ClassID, ))
+        created_class = cursor.fetchone()
+        return {"message": "Class addition successful", "class": created_class}
     except Exception as e:
         logger.exception("An error occurred during class addition")
         db.rollback()
@@ -235,7 +242,7 @@ def change_instructor(InstructorID:int,ClassSectionNumber:int, db:sqlite3.Connec
         raise HTTPException(status_code = 500, detail = "Instructor change failed")
 
 # Operation/Resource 11
-@app.get("waitlists/{StudentID}/{ClassID}", description="View their current position on the waiting list") #Path
+@app.get("/waitlists/{StudentID}/{ClassID}", description="View their current position on the waiting list") #Path
 def list_waitlist_position(ClassID: int, StudentID: int,db: sqlite3.Connection = Depends(get_db)):
     try:
         cursor = db.cursor()
@@ -273,7 +280,7 @@ def remove_from_waitlist(StudentID: int, ClassID: int, db: sqlite3.Connection = 
         raise HTTPException(status_code=500, detail="Waitlist removal failed")
 
 # Operation/Resource 13
-@app.get("waitlists/{ClassID}", description="View the current waiting list for the course")
+@app.get("/waitlists/{ClassID}", description="View the current waiting list for the course")
 def list_class_waitlist(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
     try:
         cursor = db.cursor()
@@ -293,7 +300,7 @@ def list_class_waitlist(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
         cursor.close()
 
 # Get requests to retrieve all records from various tables
-@app.get("/departments",summary="List all departments", description="View all departments")
+@app.get("/departments", description="View all departments")
 def list_departments(db: sqlite3.Connection = Depends(get_db)):
     departments = db.execute("SELECT * FROM departments")
     return {"departments": departments.fetchall()}
@@ -333,7 +340,7 @@ def list_students(db: sqlite3.Connection = Depends(get_db)):
 #     classes = db.execute("SELECT * FROM classes")
 #     return {"classes": classes.fetchall()}
 
-@app.get('/users', description = 'Show all users')
+@app.get('/users', description = 'View all users')
 def list_users(db:sqlite3.Connection = Depends(get_db)):
     users = db.execute("SELECT * FROM users")
     return {"users":users.fetchall()}

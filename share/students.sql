@@ -10,21 +10,23 @@ CREATE TABLE students (
 );
 INSERT INTO students (StudentID, FirstName, LastName, UserID)
 VALUES
-    (1, 'Michael', 'Johnson', 6),
-    (2, 'Emily', 'Wilson', 7),
-    (3, 'David', 'Brown', 8),
-    (4, 'Sarah', 'Anderson', 9),
-    (5, 'Robert', 'Lee', 10),
-    (6, 'Jennifer', 'Clark', 11),
-    (7, 'William', 'Davis', 12),
-    (8, 'Maria', 'Martinez', 13),
-    (9, 'Linda', 'Garcia', 14),
-    (10, 'James', 'Hernandez', 15),
-    (11, 'Sophia', 'Williams', 16),
-    (12, 'Ethan', 'Jones', 17),
-    (13, 'Olivia', 'Brown', 18),
-    (14, 'Liam', 'Davis', 19),
-    (15, 'Ava', 'Garcia', 20);
+    (1, 'Michael', 'Johnson', 4),
+    (2, 'Emily', 'Wilson', 5),
+    (3, 'David', 'Brown', 6),
+    (4, 'Sarah', 'Anderson', 7),
+    (5, 'Robert', 'Lee', 8),
+    (6, 'Jennifer', 'Clark', 9),
+    (7, 'William', 'Davis', 10),
+    (8, 'Maria', 'Martinez', 11),
+    (9, 'Linda', 'Garcia', 12),
+    (10, 'James', 'Hernandez', 13),
+    (11, 'Sophia', 'Williams', 14),
+    (12, 'Ethan', 'Jones', 15),
+    (13, 'Olivia', 'Brown', 16),
+    (14, 'Liam', 'Davis', 17),
+    (15, 'Ava', 'Garcia', 18),
+    (16, 'Joe', 'Markez', 19),
+    (17, 'Luis', 'Silver', 20);
 
 
 

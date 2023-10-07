@@ -10,16 +10,8 @@ CREATE TABLE instructors (
 );
 INSERT INTO instructors (InstructorID, FirstName, LastName, UserID)
 VALUES
-    (1, 'John', 'Smith', 1),
     (2, 'Jane', 'Doe', 2),
-    (3, 'Michael', 'Johnson', 3),
-    (4, 'Emily', 'Wilson', 4),
-    (5, 'David', 'Brown', 5),
-    (6, 'Sarah', 'Anderson', 6),
-    (7, 'Robert', 'Lee', 7),
-    (8, 'Jennifer', 'Clark', 8),
-    (9, 'William', 'Davis', 9),
-    (10, 'Maria', 'Martinez', 10);
+    (3, 'Michael', 'Johnson', 3);
 
 
 

@@ -12,16 +12,8 @@ CREATE TABLE classes (
 );
 INSERT INTO classes (ClassID, ClassSectionNumber, CourseID, InstructorID, ClassMaximumEnrollment)
 VALUES
-    (1, 1, 1, 1, 30),
-    (2, 2, 2, 2, 25),
-    (3, 3, 3, 3, 20),
-    (4, 1, 4, 4, 35),
-    (5, 2, 5, 5, 28),
-    (6, 3, 6, 6, 32),
-    (7, 1, 7, 7, 22),
-    (8, 2, 8, 8, 18),
-    (9, 3, 9, 9, 27),
-    (10, 1, 10, 10, 23);
+    (1, 1, 1, 1, 5),
+    (2, 2, 1, 2, 5);
 
 
 COMMIT;
