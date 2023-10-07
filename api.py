@@ -171,7 +171,7 @@ def list_class_droplists(ClassID: int, db: sqlite3.Connection = Depends(get_db))
         "droplists": droplists.fetchall()}
 
 # Operation/Resource 6 
-@app.delete("/enrollments/{StudentID}/{ClassID}", description="Drop students administratively")
+@app.delete("/admin/enrollments/{StudentID}/{ClassID}", description="Drop students administratively")
 def administratively_remove_student(ClassID: int, StudentID: int, db: sqlite3.Connection = Depends(get_db)):
     try:
         cursor = db.cursor()
