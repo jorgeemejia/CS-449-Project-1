@@ -226,8 +226,8 @@ def remove_class(Section: int, db: sqlite3.Connection = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Class removal failed")
 
 # Operation/Resource 9 #*******************Probably needs ClassID*************************
-@app.put('/classes/{Section}/{ClassSectionNumber}/{InstructorID}', description="Change the instructor for a section")
-def change_instructor(Section:int, ClassSectionNumber:int, InstructorID:int, db:sqlite3.Connection = Depends(get_db)):
+@app.put('/classes/{Section}/{InstructorID}', description="Change the instructor for a section")
+def change_instructor(Section:int, InstructorID:int, db:sqlite3.Connection = Depends(get_db)):
     try:
         cursor = db.cursor()
         
@@ -253,7 +253,7 @@ def change_instructor(Section:int, ClassSectionNumber:int, InstructorID:int, db:
             JOIN instructors AS i ON c.InstructorID = i.InstructorID
             JOIN courses AS cr ON c.CourseID = cr.CourseID
             WHERE c.Section = ?;
-        ''', (ClassSectionNumber,))
+        ''', (Section,))
 
         current_info = cursor.fetchone()
         
