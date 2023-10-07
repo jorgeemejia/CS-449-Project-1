@@ -150,8 +150,7 @@ def get_instructor_enrollment(InstructorID:int,db:sqlite3.Connection = Depends(g
     try:
 
         instructor_enrollments = db.execute('''
-                        Select s.FirstName, s.LastName 
-                        FROM students s 
+                        Select * FROM students s 
                         JOIN enrollments e ON s.StudentID=e.StudentID
                         JOIN classes c ON e.ClassID = c.ClassID
                         JOIN instructors i ON c.InstructorID = i.InstructorID
