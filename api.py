@@ -242,7 +242,7 @@ def remove_class(ClassID: int, ClassSectionNumber:int, db: sqlite3.Connection = 
         db.rollback()
         raise HTTPException(status_code=500, detail="Class removal failed")
 
-# Operation/Resource 9 #*******************Probably needs ClassID*************************
+# Operation/Resource 9 
 @app.put('/classes/{ClassID}/{ClassSectionNumber}/{InstructorID}', description="Change the instructor for a section")
 def change_instructor(ClassID:int, ClassSectionNumber:int, InstructorID:int, db:sqlite3.Connection = Depends(get_db)):
     try:
@@ -307,6 +307,18 @@ def change_instructor(ClassID:int, ClassSectionNumber:int, InstructorID:int, db:
         db.rollback()
         raise HTTPException(status_code = 500, detail = "Instructor change failed")
 
+# Operation/Resource 10
+@app.put("/settings/auto_enrollment_status", description="Set the auto enrollment status")
+def set_auto_enrollment_status(enrollment_status: EnrollmentStatus, db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+        cursor.execute("UPDATE settings SET SettingValue = ? WHERE SettingName = 'auto_enrollment_status'", (enrollment_status.status,))
+        db.commit()
+        return {"message": f"Auto enrollment status set to {enrollment_status.status}"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Unable to set auto enrollment status")
+
 # Operation/Resource 11
 @app.get("/waitlists/{StudentID}/{ClassID}", description="View their current position on the waiting list") #Path
 def list_waitlist_position(ClassID: int, StudentID: int,db: sqlite3.Connection = Depends(get_db)):
@@ -364,18 +376,6 @@ def list_class_waitlist(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
     
     finally:
         cursor.close()
-
-# Operation/Resource 14
-@app.put("/settings/auto_enrollment_status", description="Set the auto enrollment status")
-def set_auto_enrollment_status(enrollment_status: EnrollmentStatus, db: sqlite3.Connection = Depends(get_db)):
-    try:
-        cursor = db.cursor()
-        cursor.execute("UPDATE settings SET SettingValue = ? WHERE SettingName = 'auto_enrollment_status'", (enrollment_status.status,))
-        db.commit()
-        return {"message": f"Auto enrollment status set to {enrollment_status.status}"}
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail="Unable to set auto enrollment status")
 
 # Get requests to retrieve all records from various tables
 @app.get("/departments", description="View all departments")
