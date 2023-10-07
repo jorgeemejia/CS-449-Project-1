@@ -204,22 +204,22 @@ def registry_add_class(classmodel: ClassModel, db: sqlite3.Connection = Depends(
         raise HTTPException(status_code=500, detail="Class addition failed")
     
 # Operation/Resource 8
-@app.delete("/classes/{ClassID}", description = "Remove existing sections")
-def remove_class(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
+@app.delete("/classes/{ClassID}/{ClassSectionNumber}", description = "Remove existing sections")
+def remove_class(ClassID: int, ClassSectionNumber:int, db: sqlite3.Connection = Depends(get_db)):
     try:
         cursor = db.cursor()
 
         logging.debug(f"Deleting class with ClassID: {ClassID}")
 
         #Erasing that class from every single table, might be excessive, we could discuss this 
-        cursor.execute('DELETE FROM classes WHERE ClassID = ?', (ClassID, ))
+        cursor.execute('DELETE FROM classes WHERE ClassSectionNumber = ?', (ClassSectionNumber, ))
         logging.debug("Deleted from classes table")
-        cursor.execute('DELETE FROM enrollments WHERE ClassID = ?', (ClassID, ))
-        logging.debug("Deleted from enrollments table")
-        cursor.execute('DELETE FROM waitlists WHERE ClassID = ?', (ClassID, ))
-        logging.debug("Deleted from waitlists table")
-        cursor.execute('DELETE FROM droplists WHERE ClassID = ?', (ClassID, ))
-        logging.debug("Deleted from droplists table")
+        #cursor.execute('DELETE FROM enrollments WHERE ClassSectionNumber = ?', (ClassSectionNumber, ))
+        #logging.debug("Deleted from enrollments table")
+        #cursor.execute('DELETE FROM waitlists WHERE ClassSectionNumber = ?', (ClassSectionNumber, ))
+        #logging.debug("Deleted from waitlists table")
+        #cursor.execute('DELETE FROM droplists WHERE ClassSectionNumber = ?', (ClassSectionNumber, ))
+        #logging.debug("Deleted from droplists table")
         db.commit()
         return {"message": "Class removal successful"}
     except Exception as e:
