@@ -31,5 +31,11 @@ cat ./share/waitlists.sql | sqlite3 ./var/titanonline_clone.db
 # Execute droplists.sql
 cat ./share/droplists.sql | sqlite3 ./var/titanonline_clone.db
 
-# Execute classes.sql
+# Execute users.sql
 cat ./share/users.sql | sqlite3 ./var/titanonline_clone.db
+
+# Execute importantdates.sql
+cat ./share/importantdates.sql | sqlite3 ./var/titanonline_clone.db
+
+# Execute settings.sql
+cat ./share/settings.sql | sqlite3 ./var/titanonline_clone.db

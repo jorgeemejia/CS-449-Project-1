@@ -30,3 +30,8 @@ Get-Content .\share\droplists.sql | sqlite3 .\var\titanonline_clone.db
 # Execute users.sql
 Get-Content .\share\users.sql | sqlite3 .\var\titanonline_clone.db
 
+# Execute settings.sql
+Get-Content .\share\settings.sql | sqlite3 .\var\titanonline_clone.db
+
+# Execute importantdates.sql
+Get-Content .\share\importantdates.sql | sqlite3 .\var\titanonline_clone.db
