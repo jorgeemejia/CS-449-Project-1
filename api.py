@@ -4,6 +4,7 @@ import logging.config
 import sqlite3
 import typing
 import logging
+from datetime import datetime
 
 from fastapi import FastAPI, Depends, Response, HTTPException, status, Path
 from pydantic import BaseModel
@@ -16,6 +17,9 @@ logger = logging.getLogger(__name__)
 class Settings(BaseSettings, env_file=".env", extra="ignore"):
     database: str
     logging_config: str
+
+class EnrollmentStatus(BaseModel):
+    status: str
 
 class Drop(BaseModel):
     StudentID: int
@@ -108,6 +112,16 @@ def enroll_student_in_class(enrollment: Enrollment,
     try:
         cursor = db.cursor()
 
+        #Check if auto enrollment is frozen
+        cursor.execute("SELECT SettingValue FROM settings WHERE SettingName = 'auto_enrollment_status'")
+        auto_enrollment_status = cursor.fetchone()[0]
+        cursor.execute("SELECT EventDate FROM importantdates WHERE EventName = 'last_day_to_enroll'")
+        last_day_to_enroll = cursor.fetchone()[0]
+
+        if auto_enrollment_status == 'disabled' and datetime.date.today() > datetime.strptime(last_day_to_enroll, '%Y-%m-%d').date():
+            raise HTTPException(status_code=400, detail="Auto enrollment is disabled and last day to enroll has passed")
+        
+        #Check if class is full
         cursor.execute('SELECT COUNT(*) FROM enrollments WHERE ClassID = (?)', (enrollment.ClassID,))
         classCurrentEnrollment = cursor.fetchone()[0]
         cursor.execute('SELECT ClassMaximumEnrollment FROM classes WHERE ClassID = (?)', (enrollment.ClassID,))
@@ -115,14 +129,14 @@ def enroll_student_in_class(enrollment: Enrollment,
 
         if classCurrentEnrollment >= classMaximumEnrollment:
             raise HTTPException(status_code=400, detail="Class Maximum Enrollment Has Been Exceeded")
-
+        
         cursor.execute("INSERT INTO enrollments (StudentID, ClassID) VALUES (?, ?)", (enrollment.StudentID, enrollment.ClassID))
         db.commit()
 
         cursor.execute('SELECT * FROM enrollments WHERE EnrollmentID = last_insert_rowid();')
         created_enrollment = cursor.fetchone()
         return {"message": "Enrollment successful", "enrollment": created_enrollment}
-
+    
     except HTTPException as e:
         logger.error(f"HTTPException: {e.status_code} - {e.detail}")
         raise
@@ -130,6 +144,8 @@ def enroll_student_in_class(enrollment: Enrollment,
         logger.exception("An error occurred during enrollment")
         db.rollback()
         raise HTTPException(status_code=500, detail="Enrollment failed")
+    
+        
 
 # Operation/Resource 3
 @app.delete("/enrollments/{StudentID}/{ClassID}", description="Drop a class")
@@ -298,6 +314,18 @@ def list_class_waitlist(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
     
     finally:
         cursor.close()
+
+# Operation/Resource 14
+@app.put("/settings/auto_enrollment_status", description="Set the auto enrollment status")
+def set_auto_enrollment_status(enrollment_status: EnrollmentStatus, db: sqlite3.Connection = Depends(get_db)):
+    try:
+        cursor = db.cursor()
+        cursor.execute("UPDATE settings SET SettingValue = ? WHERE SettingName = 'auto_enrollment_status'", (enrollment_status.status,))
+        db.commit()
+        return {"message": f"Auto enrollment status set to {enrollment_status.status}"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Unable to set auto enrollment status")
 
 # Get requests to retrieve all records from various tables
 @app.get("/departments", description="View all departments")
