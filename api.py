@@ -221,15 +221,66 @@ def remove_class(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Class removal failed")
 
 # Operation/Resource 9 #*******************Probably needs ClassID*************************
-@app.put('/classes/{ClassSectionNumber}/{InstructorID}', description="Change the instructor for a section")
-def change_instructor(InstructorID:int,ClassSectionNumber:int, db:sqlite3.Connection = Depends(get_db)):
+@app.put('/classes/{ClassID}/{ClassSectionNumber}/{InstructorID}', description="Change the instructor for a section")
+def change_instructor(ClassID:int, ClassSectionNumber:int, InstructorID:int, db:sqlite3.Connection = Depends(get_db)):
     try:
-        instructor_change = db.execute('''
+        cursor = db.cursor()
+        
+        # Check if the current instructor is the same as the new instructor
+        cursor.execute('''
+            SELECT InstructorID
+            FROM classes
+            WHERE ClassSectionNumber = ?;
+        ''', (ClassSectionNumber,))
+
+        current_instructor_id = cursor.fetchone()
+
+        if current_instructor_id:
+            current_instructor_id = current_instructor_id[0]
+            
+            if current_instructor_id == InstructorID:
+                return {"message": "The current instructor is already the same as the new instructor."}
+
+        # Get the current instructor's name and course name before the update
+        cursor.execute('''
+            SELECT i.FirstName, i.LastName, cr.CourseName
+            FROM classes AS c
+            JOIN instructors AS i ON c.InstructorID = i.InstructorID
+            JOIN courses AS cr ON c.CourseID = cr.CourseID
+            WHERE c.ClassSectionNumber = ?;
+        ''', (ClassSectionNumber,))
+
+        current_info = cursor.fetchone()
+        
+        if current_info:
+            current_instructor_first_name, current_instructor_last_name, course_name = current_info
+
+            # Update the InstructorID for the specified ClassSectionNumber
+            cursor.execute('''
                 UPDATE classes
                 SET InstructorID = ?
-                WHERE ClassSectionNumber = ?;''', (InstructorID, ClassSectionNumber))
-        db.commit()
-        return {"message":f"Instructor for class section {ClassSectionNumber} has been changed to {InstructorID}"}
+                WHERE ClassSectionNumber = ?;
+            ''', (InstructorID, ClassSectionNumber))
+
+            # Commit the changes to the database
+            db.commit()
+
+            # Get the updated instructor's name
+            cursor.execute('''
+                SELECT i.FirstName, i.LastName
+                FROM classes AS c
+                JOIN instructors AS i ON c.InstructorID = i.InstructorID
+                WHERE c.ClassSectionNumber = ?;
+            ''', (ClassSectionNumber,))
+
+            updated_instructor = cursor.fetchone()
+
+            if updated_instructor:
+                updated_instructor_first_name, updated_instructor_last_name = updated_instructor
+                return {
+                    "message": f" Instructor for {course_name} - Section {ClassSectionNumber} has been changed from {current_instructor_first_name} {current_instructor_last_name} to {updated_instructor_first_name} {updated_instructor_last_name}"
+                }
+        
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code = 500, detail = "Instructor change failed")
