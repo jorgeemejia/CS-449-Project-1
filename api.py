@@ -115,14 +115,14 @@ def enroll_student_in_class(enrollment: Enrollment,
     try:
         cursor = db.cursor()
 
-        # Check if auto enrollment is frozen
-        cursor.execute("SELECT SettingValue FROM settings WHERE SettingName = 'auto_enrollment_status'")
-        auto_enrollment_status = cursor.fetchone()[0]
-        cursor.execute("SELECT EventDate FROM importantdates WHERE EventName = 'last_day_to_enroll'")
-        last_day_to_enroll = cursor.fetchone()[0]
+        # # Check if auto enrollment is frozen
+        # cursor.execute("SELECT SettingValue FROM settings WHERE SettingName = 'auto_enrollment_status'")
+        # auto_enrollment_status = cursor.fetchone()[0]
+        # cursor.execute("SELECT EventDate FROM importantdates WHERE EventName = 'last_day_to_enroll'")
+        # last_day_to_enroll = cursor.fetchone()[0]
 
-        if auto_enrollment_status == 'disabled' and datetime.date.today() > datetime.strptime(last_day_to_enroll, '%Y-%m-%d').date():
-            raise HTTPException(status_code=400, detail="Auto enrollment is disabled and last day to enroll has passed")
+        # if auto_enrollment_status == 'disabled' and datetime.date.today() > datetime.strptime(last_day_to_enroll, '%Y-%m-%d').date():
+        #     raise HTTPException(status_code=400, detail="Auto enrollment is disabled and last day to enroll has passed")
         
         #Check if class is full
         cursor.execute('SELECT COUNT(*) FROM enrollments WHERE ClassID = (?)', (enrollment.ClassID,))
@@ -136,7 +136,7 @@ def enroll_student_in_class(enrollment: Enrollment,
         cursor.execute("INSERT INTO enrollments (StudentID, ClassID) VALUES (?, ?)", (enrollment.StudentID, enrollment.ClassID))
         db.commit()
 
-        cursor.execute('SELECT * FROM enrollments WHERE EnrollmentID = last_insert_rowid();')
+        cursor.execute('SELECT * FROM enrollments WHERE ClassID = ?', (enrollment.ClassID, ))
         created_enrollment = cursor.fetchone()
         return {"message": "Enrollment successful", "enrollment": created_enrollment}
     
