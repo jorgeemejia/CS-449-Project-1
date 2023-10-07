@@ -67,6 +67,40 @@ logging.config.fileConfig(settings.logging_config, disable_existing_loggers=Fals
 def hello_world():
     return {"Up and running"}
 
+#filters, course id, department id , instructor id
+
+# Operation/Resource 1
+@app.get("/classes",description="List available classes")
+def list_available_classes(available: bool = True, db: sqlite3.Connection = Depends(get_db)):
+
+    try:
+        cursor = db.cursor()
+        logger.debug({available})
+        if available:
+            classes = cursor.execute('''SELECT c.*, co.*
+                                        FROM classes AS c
+                                        LEFT JOIN (
+                                        SELECT ClassID, COUNT(*) AS EnrollmentCount
+                                        FROM enrollments
+                                        GROUP BY ClassID
+                                        ) AS e ON c.ClassID = e.ClassID
+                                        INNER JOIN courses AS co ON c.CourseID = co.CourseID
+                                        WHERE c.ClassMaximumEnrollment > COALESCE(e.EnrollmentCount, 0);
+                                    ''')
+        else:
+            classes = cursor.execute('SELECT * FROM classes')
+        
+        result = {"Classes": classes.fetchall()}
+
+        if not result["Classes"] and available:
+            raise HTTPException(status_code=404, detail="No available classes found")
+        
+        return result
+
+    except Exception as e:
+        logger.exception("An error occurred listing available classes")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 # Operation/Resource 2
 @app.post("/enrollments", description="Attempt to enroll in a class")
 def enroll_student_in_class(enrollment: Enrollment,
@@ -294,10 +328,10 @@ def list_students(db: sqlite3.Connection = Depends(get_db)):
     students = db.execute("SELECT * FROM students")
     return {"students": students.fetchall()}
 
-@app.get("/classes", description="View all classes")
-def list_classes(db: sqlite3.Connection = Depends(get_db)):
-    classes = db.execute("SELECT * FROM classes")
-    return {"classes": classes.fetchall()}
+# @app.get("/classes", description="View all classes")
+# def list_classes(db: sqlite3.Connection = Depends(get_db)):
+#     classes = db.execute("SELECT * FROM classes")
+#     return {"classes": classes.fetchall()}
 
 @app.get('/users', description = 'Show all users')
 def list_users(db:sqlite3.Connection = Depends(get_db)):
