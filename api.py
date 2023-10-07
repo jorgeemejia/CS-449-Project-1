@@ -92,7 +92,10 @@ def list_available_classes(available: bool = True, db: sqlite3.Connection = Depe
                                         WHERE c.ClassMaximumEnrollment > COALESCE(e.EnrollmentCount, 0);
                                     ''')
         else:
-            classes = cursor.execute('SELECT * FROM classes')
+            classes = cursor.execute('''SELECT c.*, co.* 
+                                        FROM classes AS c
+                                        JOIN
+                                        courses AS co ON c.CourseID = co.CourseID''')
         
         result = {"Classes": classes.fetchall()}
 
@@ -106,13 +109,13 @@ def list_available_classes(available: bool = True, db: sqlite3.Connection = Depe
         raise HTTPException(status_code=500, detail="Internal server error")
 
 # Operation/Resource 2
-@app.post("/enrollments/{StudentID}/{ClassID}", description="Attempt to enroll in a class")
+@app.post("/enrollments", description="Attempt to enroll in a class")
 def enroll_student_in_class(enrollment: Enrollment,
                                         db: sqlite3.Connection = Depends(get_db)):
     try:
         cursor = db.cursor()
 
-        #Check if auto enrollment is frozen
+        # Check if auto enrollment is frozen
         cursor.execute("SELECT SettingValue FROM settings WHERE SettingName = 'auto_enrollment_status'")
         auto_enrollment_status = cursor.fetchone()[0]
         cursor.execute("SELECT EventDate FROM importantdates WHERE EventName = 'last_day_to_enroll'")
@@ -181,7 +184,10 @@ def get_instructor_enrollment(InstructorID:int,db:sqlite3.Connection = Depends(g
 @app.get("/droplists/{ClassID}",summary="List class droplists", description="View students who dropped the class")
 def list_class_droplists(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
     droplists = db.execute(
-        "SELECT * FROM droplists WHERE ClassID = ?", (ClassID,))
+        '''SELECT d.*, s.*
+           FROM droplists as d
+           JOIN students AS s ON s.StudentID = d.StudentID
+           WHERE ClassID = ?''', (ClassID,))
     return {
         "class_id": ClassID,
         "droplists": droplists.fetchall()}
@@ -220,15 +226,15 @@ def registry_add_class(classmodel: ClassModel, db: sqlite3.Connection = Depends(
         raise HTTPException(status_code=500, detail="Class addition failed")
     
 # Operation/Resource 8
-@app.delete("/classes/{ClassID}/{ClassSectionNumber}", description = "Remove existing sections")
-def remove_class(ClassID: int, ClassSectionNumber:int, db: sqlite3.Connection = Depends(get_db)):
+@app.delete("/classes/{ClassID}", description = "Remove existing sections")
+def remove_class(ClassID: int, db: sqlite3.Connection = Depends(get_db)):
     try:
         cursor = db.cursor()
 
         logging.debug(f"Deleting class with ClassID: {ClassID}")
 
         #Erasing that class from every single table, might be excessive, we could discuss this 
-        cursor.execute('DELETE FROM classes WHERE ClassSectionNumber = ?', (ClassSectionNumber, ))
+        cursor.execute('DELETE FROM classes WHERE ClassID = ?', (ClassID, ))
         logging.debug("Deleted from classes table")
         #cursor.execute('DELETE FROM enrollments WHERE ClassSectionNumber = ?', (ClassSectionNumber, ))
         #logging.debug("Deleted from enrollments table")
@@ -243,8 +249,8 @@ def remove_class(ClassID: int, ClassSectionNumber:int, db: sqlite3.Connection = 
         raise HTTPException(status_code=500, detail="Class removal failed")
 
 # Operation/Resource 9 
-@app.put('/classes/{ClassID}/{ClassSectionNumber}/{InstructorID}', description="Change the instructor for a section")
-def change_instructor(ClassID:int, ClassSectionNumber:int, InstructorID:int, db:sqlite3.Connection = Depends(get_db)):
+@app.put('/classes/{ClassID}/{InstructorID}', description="Change the instructor for a section")
+def change_instructor(ClassID:int, InstructorID:int, db:sqlite3.Connection = Depends(get_db)):
     try:
         cursor = db.cursor()
         
@@ -252,8 +258,8 @@ def change_instructor(ClassID:int, ClassSectionNumber:int, InstructorID:int, db:
         cursor.execute('''
             SELECT InstructorID
             FROM classes
-            WHERE ClassSectionNumber = ?;
-        ''', (ClassSectionNumber,))
+            WHERE ClassID = ?;
+        ''', (ClassID,))
 
         current_instructor_id = cursor.fetchone()
 
@@ -269,8 +275,8 @@ def change_instructor(ClassID:int, ClassSectionNumber:int, InstructorID:int, db:
             FROM classes AS c
             JOIN instructors AS i ON c.InstructorID = i.InstructorID
             JOIN courses AS cr ON c.CourseID = cr.CourseID
-            WHERE c.ClassSectionNumber = ?;
-        ''', (ClassSectionNumber,))
+            WHERE c.ClassID = ?;
+        ''', (ClassID,))
 
         current_info = cursor.fetchone()
         
@@ -281,8 +287,8 @@ def change_instructor(ClassID:int, ClassSectionNumber:int, InstructorID:int, db:
             cursor.execute('''
                 UPDATE classes
                 SET InstructorID = ?
-                WHERE ClassSectionNumber = ?;
-            ''', (InstructorID, ClassSectionNumber))
+                WHERE ClassID = ?;
+            ''', (InstructorID, ClassID))
 
             # Commit the changes to the database
             db.commit()
@@ -292,15 +298,15 @@ def change_instructor(ClassID:int, ClassSectionNumber:int, InstructorID:int, db:
                 SELECT i.FirstName, i.LastName
                 FROM classes AS c
                 JOIN instructors AS i ON c.InstructorID = i.InstructorID
-                WHERE c.ClassSectionNumber = ?;
-            ''', (ClassSectionNumber,))
+                WHERE c.ClassID = ?;
+            ''', (ClassID,))
 
             updated_instructor = cursor.fetchone()
 
             if updated_instructor:
                 updated_instructor_first_name, updated_instructor_last_name = updated_instructor
                 return {
-                    "message": f" Instructor for {course_name} - Section {ClassSectionNumber} has been changed from {current_instructor_first_name} {current_instructor_last_name} to {updated_instructor_first_name} {updated_instructor_last_name}"
+                    "message": f" Instructor for {course_name} - Section {ClassID} has been changed from {current_instructor_first_name} {current_instructor_last_name} to {updated_instructor_first_name} {updated_instructor_last_name}"
                 }
         
     except Exception as e:
