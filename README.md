@@ -1,3 +1,5 @@
+# THIS IS THE README FOR THE GITHUB REPO, PROJECT REPORT IS IN Project1Report.pdf
+
 # CS-449-Project-1
 
 ## Getting Started
@@ -70,4 +72,4 @@ Also, make sure you have completed the additional setup steps provided by Prof. 
 
 ## Getting Lost
 
-"Wait, what's a ___?" "How the fuck do you ____?" Some of these things like branches, pull requests, merging, issues, and so on might be new and confusing, and that's perfectly fine! Don't hesitate to hop into our Discord and ask for help or clarification.
+"Wait, what's a ___?" "How the do you ____?" Some of these things like branches, pull requests, merging, issues, and so on might be new and confusing, and that's perfectly fine! Don't hesitate to hop into our Discord and ask for help or clarification.

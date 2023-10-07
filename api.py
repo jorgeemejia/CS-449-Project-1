@@ -102,7 +102,7 @@ def list_available_classes(available: bool = True, db: sqlite3.Connection = Depe
         raise HTTPException(status_code=500, detail="Internal server error")
 
 # Operation/Resource 2
-@app.post("/enrollments", description="Attempt to enroll in a class")
+@app.post("/enrollments/{StudentID}/{ClassID}", description="Attempt to enroll in a class")
 def enroll_student_in_class(enrollment: Enrollment,
                                         db: sqlite3.Connection = Depends(get_db)):
     try:
