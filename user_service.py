@@ -8,7 +8,9 @@ import logging.config
 import sqlite3
 import typing
 import logging
-from datetime import datetime
+import secrets
+import hashlib
+import base64
 
 from fastapi import FastAPI, Depends, Response, HTTPException, status, Path
 from pydantic import BaseModel
@@ -91,20 +93,9 @@ def generate_claims(username, user_id, roles):
         "refresh_token": claims,
         "exp": int(exp.timestamp()),
     }
-
-    output = json.dumps(token, indent=4)
-    print(output)
+    return token
+ 
     
-def generate_keys(key_ids):
-    keys = [jwk.JWK.generate(kid=key_id, kty="RSA", alg="RS256") for key_id in key_ids]
-    exported_keys = [
-        key.export(private_key=private) for key in keys for private in [False, True]
-    ]
-    keys_as_json = [json.loads(exported_key) for exported_key in exported_keys]
-    jwks = {"keys": keys_as_json}
-    output = json.dumps(jwks, indent=4)
-    print(output)
-
 # Operation/Resource 13
 @app.post("/register/", description="Register a new user")
 def register_new_user(usermodel: UserModel, db: sqlite3.Connection = Depends(get_db)):
@@ -123,18 +114,32 @@ def register_new_user(usermodel: UserModel, db: sqlite3.Connection = Depends(get
         raise HTTPException(status_code=500, detail="User registration failed")
 
 # Operation/Resource 14
-@app.get("/login/", description="User Login")
-def check_user_password(logindata: UserLoginModel, db: sqlite3.Connection = Depends(get_db)):
+@app.post("/login/", description="User Login")
+def login(logindata: UserLoginModel, db: sqlite3.Connection = Depends(get_db), status_code=status.HTTP_200_OK):
     try:
         cursor = db.cursor()
-        hashed_password = cursor.execute("SELECT PW FROM users WHERE UserName=?",(logindata.UserName))
-        if (verify_password(logindata.PW, hashed_password)):
-            return {"message": "Password verified"}
+        cursor.execute("SELECT UserID, PW FROM users WHERE UserName=? LIMIT 1", [logindata.UserName])
+        result = cursor.fetchone()
+
+        if not result:
+            raise HTTPException(status_code=401, detail="wrong username & password combination") 
+
+        if not verify_password(logindata.PW, result["PW"]):
+            raise HTTPException(status_code=404, detail="Password mismatch")
         else:
-            return {"message": "Password mismatch"}
-    except Exception as e:   
+            cursor.execute('''SELECT roles.RoleName 
+                              FROM roles INNER JOIN userRole ON roles.RoleID = userRole.RoleID
+                              WHERE userRole.UserID = ? ''', [result["UserID"]])
+            rows = cursor.fetchall()       
+            list_of_rolenames = [row[0] for row in rows]
+            return generate_claims(logindata.UserName, result["UserID"], list_of_rolenames)
+            
+
+    except Exception as e:
         logger.exception("An error occurred during password verification")    
-        raise HTTPException(status_code=500, detail="Password verification failed") 
+        raise HTTPException(status_code=e.status_code, detail=str(e.detail)) 
+    
+    
 
 @app.get("/test/", description="User Login")
 def check_user_password(logindata: UserLoginModel, db: sqlite3.Connection = Depends(get_db)):

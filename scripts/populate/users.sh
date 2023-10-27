@@ -6,4 +6,4 @@ if [ ! -d "./var" ]; then
 fi
 
 # Execute classes.sql
-cat ./share/users.sql | sqlite3 ./var/titanonline_clone.db
+cat ./share/users.sql | sqlite3 ./var/user.db

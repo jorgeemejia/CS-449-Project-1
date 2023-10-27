@@ -21,4 +21,16 @@ CREATE TABLE userRole (
     CONSTRAINT fk_users FOREIGN KEY (UserID) REFERENCES users(UserID)
     CONSTRAINT fk_roles FOREIGN KEY (RoleID) REFERENCES roles(RoleID)
 );
+
+INSERT INTO users(UserID,UserName, PW) VALUES(1,'maymarch',"pbkdf2_sha256$260000$7c345404c779c6e31691fa33d63f3f1e$nS1NifhS3b8yjFub6yRfv7wOIe7dew+tcik2StFeHs4=");
+
+INSERT INTO roles(RoleID,RoleName) VALUES(1,'Student');
+INSERT INTO roles(RoleID,RoleName) VALUES(2,'Teacher');
+INSERT INTO roles(RoleID,RoleName) VALUES(3,'Regisrar');
+
+INSERT INTO userRole(UserID,RoleID) VALUES (1,1);
+INSERT INTO userRole(UserID,RoleID) VALUES (1,2);
+INSERT INTO userRole(UserID,RoleID) VALUES (1,3);
+
+
 COMMIT;
