@@ -5,5 +5,5 @@ if [ ! -d "./var" ]; then
     mkdir -p "./var/log"
 fi
 
-# Execute classes.sql
+# Execute users.sql
 cat ./share/users.sql | sqlite3 ./var/user.db
